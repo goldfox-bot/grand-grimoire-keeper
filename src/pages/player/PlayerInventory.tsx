@@ -158,6 +158,16 @@ const PlayerInventory = () => {
         description: "Une gemme qui brille d'une lueur argentée.",
         weight: 0.1,
         value: 500
+      },
+      {
+        id: 11,
+        name: "Corde de soie",
+        type: "gear",
+        rarity: "common",
+        equipped: false,
+        description: "Une corde de soie de 15 mètres.",
+        weight: 5,
+        value: 2
       }
     ]
   };

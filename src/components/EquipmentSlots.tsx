@@ -8,16 +8,17 @@ import {
   Shield, 
   Hand, 
   Shirt, 
-  FootprintsIcon,
+  Footprints,
   Circle,
   Plus,
-  X
+  X,
+  Sword
 } from "lucide-react";
 
 interface EquipmentSlot {
   id: string;
   name: string;
-  type: 'head' | 'chest' | 'arms' | 'neck' | 'rings' | 'legs';
+  type: 'head' | 'chest' | 'arms' | 'neck' | 'rings' | 'legs' | 'weapon' | 'offhand';
   equipped?: any;
   position: { x: number; y: number };
   icon: any;
@@ -69,10 +70,18 @@ const EquipmentSlots = ({ character, availableItems, onEquipItem, onUnequipItem 
     {
       id: 'mainHand',
       name: 'Main principale',
-      type: 'rings',
+      type: 'weapon',
       position: { x: 80, y: 35 },
-      icon: Shield,
+      icon: Sword,
       equipped: character.equipment?.mainHand
+    },
+    {
+      id: 'offHand',
+      name: 'Main secondaire',
+      type: 'offhand',
+      position: { x: 20, y: 45 },
+      icon: Shield,
+      equipped: character.equipment?.offHand
     },
     {
       id: 'ring1',
@@ -95,7 +104,7 @@ const EquipmentSlots = ({ character, availableItems, onEquipItem, onUnequipItem 
       name: 'Jambes',
       type: 'legs',
       position: { x: 50, y: 70 },
-      icon: FootprintsIcon,
+      icon: Footprints,
       equipped: character.equipment?.legs
     }
   ];
@@ -107,7 +116,9 @@ const EquipmentSlots = ({ character, availableItems, onEquipItem, onUnequipItem 
       arms: ['gauntlets', 'gloves'],
       neck: ['amulet', 'pendant'],
       rings: ['ring'],
-      legs: ['boots', 'shoes']
+      legs: ['boots', 'shoes'],
+      weapon: ['sword', 'bow', 'axe', 'mace', 'dagger', 'staff'],
+      offhand: ['shield', 'dagger', 'sword']
     };
 
     return availableItems.filter(item => 
@@ -152,10 +163,23 @@ const EquipmentSlots = ({ character, availableItems, onEquipItem, onUnequipItem 
         <CardContent className="p-6">
           <h3 className="text-lg font-semibold mb-4 text-center">Équipement</h3>
           <div className="relative w-full h-96 mx-auto bg-gradient-to-b from-background/50 to-background border-2 border-dashed border-border rounded-lg">
-            {/* Silhouette centrale */}
-            <div className="absolute inset-0 flex items-center justify-center">
-              <div className="w-16 h-32 bg-muted/30 rounded-full opacity-50" />
-            </div>
+            {/* Silhouette centrale (SVG) */}
+            <svg viewBox="0 0 200 400" className="absolute inset-0 m-auto h-full w-auto text-muted-foreground/20" fill="currentColor" aria-hidden="true">
+              {/* Tête */}
+              <circle cx="100" cy="60" r="28" />
+              {/* Cou */}
+              <rect x="90" y="88" width="20" height="14" rx="6" />
+              {/* Buste */}
+              <rect x="65" y="102" width="70" height="110" rx="20" />
+              {/* Bras */}
+              <rect x="35" y="115" width="25" height="100" rx="12" />
+              <rect x="140" y="115" width="25" height="100" rx="12" />
+              {/* Bassin */}
+              <rect x="75" y="212" width="50" height="35" rx="12" />
+              {/* Jambes */}
+              <rect x="70" y="247" width="25" height="110" rx="12" />
+              <rect x="105" y="247" width="25" height="110" rx="12" />
+            </svg>
 
             {/* Emplacements d'équipement */}
             {equipmentSlots.map((slot) => {
@@ -306,15 +330,18 @@ const EquipmentSlots = ({ character, availableItems, onEquipItem, onUnequipItem 
             <div className="space-y-2">
               {equipmentSlots
                 .filter(slot => slot.equipped)
-                .map((slot) => (
-                  <div key={slot.id} className="flex items-center gap-2 p-2 bg-card border border-border rounded">
-                    <slot.icon className="w-4 h-4 text-muted-foreground" />
-                    <span className="text-sm">{slot.equipped.name}</span>
-                    <Badge variant="outline" className="ml-auto text-xs">
-                      {slot.name}
-                    </Badge>
-                  </div>
-                ))}
+                .map((slot) => {
+                  const IconComp = slot.icon;
+                  return (
+                    <div key={slot.id} className="flex items-center gap-2 p-2 bg-card border border-border rounded">
+                      <IconComp className="w-4 h-4 text-muted-foreground" />
+                      <span className="text-sm">{slot.equipped.name}</span>
+                      <Badge variant="outline" className="ml-auto text-xs">
+                        {slot.name}
+                      </Badge>
+                    </div>
+                  );
+                })}
               
               {equipmentSlots.filter(slot => slot.equipped).length === 0 && (
                 <p className="text-sm text-muted-foreground italic text-center py-2">
