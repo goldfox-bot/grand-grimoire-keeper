@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -38,148 +38,104 @@ const PlayerInventory = () => {
     );
   }
 
-  const inventory = {
-    coins: { gold: selectedCharacter.inventory.gold, silver: 15, copper: 8 },
-    capacity: { current: selectedCharacter.inventory.weight.current, max: selectedCharacter.inventory.weight.max },
-    items: [
-      {
-        id: 1,
-        name: "Arc long elfique +1",
-        type: "weapon",
-        subtype: "bow",
-        rarity: "uncommon",
-        equipped: false,
-        description: "Un arc long finement ouvragé avec des inscriptions elfiques.",
-        weight: 2,
-        value: 150,
-        stats: { damage: 2, dexterity: 1 }
-      },
-      {
-        id: 2,
-        name: "Armure de cuir clouté +1",
-        type: "armor",
-        subtype: "armor",
-        rarity: "uncommon",
-        equipped: false,
-        description: "Une armure de cuir renforcée de clous métalliques enchantés.",
-        weight: 13,
-        value: 200,
-        stats: { ac: 3, dexterity: 1 }
-      },
-      {
-        id: 3,
-        name: "Épée courte",
-        type: "weapon",
-        subtype: "sword",
-        rarity: "common",
-        equipped: false,
-        description: "Une épée courte de qualité standard.",
-        weight: 2,
-        value: 10,
-        stats: { damage: 1 }
-      },
-      {
-        id: 4,
-        name: "Casque de guerre",
-        type: "armor",
-        subtype: "helmet",
-        rarity: "common",
-        equipped: false,
-        description: "Un casque de métal forgé pour la protection.",
-        weight: 3,
-        value: 25,
-        stats: { ac: 1 }
-      },
-      {
-        id: 5,
-        name: "Gantelets de force",
-        type: "armor",
-        subtype: "gauntlets",
-        rarity: "uncommon",
-        equipped: false,
-        description: "Des gantelets enchantés qui augmentent la force.",
-        weight: 1,
-        value: 150,
-        stats: { strength: 2 }
-      },
-      {
-        id: 6,
-        name: "Amulette de protection",
-        type: "jewelry",
-        subtype: "amulet",
-        rarity: "rare",
-        equipped: false,
-        description: "Une amulette qui protège contre les sorts.",
-        weight: 0.1,
-        value: 300,
-        stats: { ac: 1, wisdom: 1 }
-      },
-      {
-        id: 7,
-        name: "Anneau de dextérité",
-        type: "jewelry",
-        subtype: "ring",
-        rarity: "uncommon",
-        equipped: false,
-        description: "Un anneau qui améliore l'agilité.",
-        weight: 0.1,
-        value: 200,
-        stats: { dexterity: 2 }
-      },
-      {
-        id: 8,
-        name: "Bottes de l'explorateur",
-        type: "armor",
-        subtype: "boots",
-        rarity: "common",
-        equipped: false,
-        description: "Des bottes robustes pour les longs voyages.",
-        weight: 2,
-        value: 50,
-        stats: { constitution: 1 }
-      },
-      {
-        id: 9,
-        name: "Potion de soins",
-        type: "consumable",
-        rarity: "common",
-        equipped: false,
-        description: "Restaure 2d4+2 points de vie.",
-        weight: 0.5,
-        value: 50,
-        quantity: 3
-      },
-      {
-        id: 10,
-        name: "Gemme de vision nocturne",
-        type: "treasure",
-        rarity: "rare",
-        equipped: false,
-        description: "Une gemme qui brille d'une lueur argentée.",
-        weight: 0.1,
-        value: 500
-      },
-      {
-        id: 11,
-        name: "Corde de soie",
-        type: "gear",
-        rarity: "common",
-        equipped: false,
-        description: "Une corde de soie de 15 mètres.",
-        weight: 5,
-        value: 2
-      }
-    ]
+  // État par personnage: items et équipement
+  type Equipment = {
+    head?: any; neck?: any; chest?: any; arms?: any; mainHand?: any; offHand?: any; ring1?: any; ring2?: any; legs?: any;
+  };
+  const [itemsByCharacter, setItemsByCharacter] = useState<Record<string, any[]>>({});
+  const [equipmentByCharacter, setEquipmentByCharacter] = useState<Record<string, Equipment>>({});
+
+  // Inventaire par défaut utilisé à la première ouverture d'un perso
+  const defaultItems: any[] = [
+    { id: 1, name: "Arc long elfique +1", type: "weapon", subtype: "bow", rarity: "uncommon", equipped: false, description: "Un arc long finement ouvragé avec des inscriptions elfiques.", weight: 2, value: 150, stats: { damage: 2, dexterity: 1 } },
+    { id: 2, name: "Armure de cuir clouté +1", type: "armor", subtype: "armor", rarity: "uncommon", equipped: false, description: "Une armure de cuir renforcée de clous métalliques enchantés.", weight: 13, value: 200, stats: { ac: 3, dexterity: 1 } },
+    { id: 3, name: "Épée courte", type: "weapon", subtype: "sword", rarity: "common", equipped: false, description: "Une épée courte de qualité standard.", weight: 2, value: 10, stats: { damage: 1 } },
+    { id: 4, name: "Casque de guerre", type: "armor", subtype: "helmet", rarity: "common", equipped: false, description: "Un casque de métal forgé pour la protection.", weight: 3, value: 25, stats: { ac: 1 } },
+    { id: 5, name: "Gantelets de force", type: "armor", subtype: "gauntlets", rarity: "uncommon", equipped: false, description: "Des gantelets enchantés qui augmentent la force.", weight: 1, value: 150, stats: { strength: 2 } },
+    { id: 6, name: "Amulette de protection", type: "jewelry", subtype: "amulet", rarity: "rare", equipped: false, description: "Une amulette qui protège contre les sorts.", weight: 0.1, value: 300, stats: { ac: 1, wisdom: 1 } },
+    { id: 7, name: "Anneau de dextérité", type: "jewelry", subtype: "ring", rarity: "uncommon", equipped: false, description: "Un anneau qui améliore l'agilité.", weight: 0.1, value: 200, stats: { dexterity: 2 } },
+    { id: 8, name: "Bottes de l'explorateur", type: "armor", subtype: "boots", rarity: "common", equipped: false, description: "Des bottes robustes pour les longs voyages.", weight: 2, value: 50, stats: { constitution: 1 } },
+    { id: 9, name: "Potion de soins", type: "consumable", rarity: "common", equipped: false, description: "Restaure 2d4+2 points de vie.", weight: 0.5, value: 50, quantity: 3 },
+    { id: 10, name: "Gemme de vision nocturne", type: "treasure", rarity: "rare", equipped: false, description: "Une gemme qui brille d'une lueur argentée.", weight: 0.1, value: 500 },
+    { id: 11, name: "Corde de soie", type: "gear", rarity: "common", equipped: false, description: "Une corde de soie de 15 mètres.", weight: 5, value: 2 },
+  ];
+
+  // Initialisation pour le personnage courant
+  useEffect(() => {
+    if (!itemsByCharacter[selectedCharacter.id]) {
+      setItemsByCharacter((prev) => ({ ...prev, [selectedCharacter.id]: defaultItems }));
+    }
+    if (!equipmentByCharacter[selectedCharacter.id]) {
+      setEquipmentByCharacter((prev) => ({ ...prev, [selectedCharacter.id]: {} }));
+    }
+  }, [selectedCharacter.id]);
+
+  const items = itemsByCharacter[selectedCharacter.id] || defaultItems;
+  const equipment = equipmentByCharacter[selectedCharacter.id] || {};
+
+  const autoSlotForItem = (item: any): string | null => {
+    const key = item.subtype || item.type;
+    switch (key) {
+      case "helmet": case "crown": case "tiara": return "head";
+      case "armor": case "robe": case "shirt": return "chest";
+      case "gauntlets": case "gloves": return "arms";
+      case "amulet": case "pendant": return "neck";
+      case "ring": return !equipment.ring1 ? "ring1" : (!equipment.ring2 ? "ring2" : "ring1");
+      case "boots": case "shoes": return "legs";
+      case "sword": case "bow": case "axe": case "mace": case "dagger": case "staff":
+        return !equipment.mainHand ? "mainHand" : (!equipment.offHand ? "offHand" : "mainHand");
+      default:
+        return null;
+    }
   };
 
   const handleEquipItem = (slotId: string, item: any) => {
-    // Ici on pourrait mettre à jour le contexte du personnage
-    toast.success(`${item.name} équipé dans l'emplacement ${slotId}`);
+    setEquipmentByCharacter((prev) => {
+      const prevEquip = prev[selectedCharacter.id] || {};
+      const previousItemInSlot = (prevEquip as any)[slotId];
+      const nextEquip = { ...prevEquip, [slotId]: item } as Equipment;
+
+      // Met à jour les flags d'équipement des items
+      setItemsByCharacter((itemsState) => {
+        const current = itemsState[selectedCharacter.id] || [];
+        const next = current.map((it) => {
+          if (it.id === item.id) return { ...it, equipped: true };
+          if (previousItemInSlot && it.id === previousItemInSlot.id) return { ...it, equipped: false };
+          return it;
+        });
+        return { ...itemsState, [selectedCharacter.id]: next };
+      });
+
+      toast.success(`${item.name} équipé dans l'emplacement ${slotId}`);
+      return { ...prev, [selectedCharacter.id]: nextEquip };
+    });
   };
 
   const handleUnequipItem = (slotId: string) => {
-    toast.success(`Objet déséquipé de l'emplacement ${slotId}`);
+    setEquipmentByCharacter((prev) => {
+      const prevEquip = prev[selectedCharacter.id] || {};
+      const item = (prevEquip as any)[slotId];
+      const nextEquip = { ...prevEquip, [slotId]: undefined } as Equipment;
+
+      setItemsByCharacter((itemsState) => {
+        const current = itemsState[selectedCharacter.id] || [];
+        const next = current.map((it) => (item && it.id === item.id ? { ...it, equipped: false } : it));
+        return { ...itemsState, [selectedCharacter.id]: next };
+      });
+
+      toast.success(`Objet déséquipé de l'emplacement ${slotId}`);
+      return { ...prev, [selectedCharacter.id]: nextEquip };
+    });
   };
+
+  // Objet d'inventaire pour l'UI
+  const inventory = {
+    coins: { gold: selectedCharacter.inventory.gold, silver: 15, copper: 8 },
+    capacity: { current: selectedCharacter.inventory.weight.current, max: selectedCharacter.inventory.weight.max },
+    items,
+  };
+
+  // Handlers définis plus haut (remplacent les placeholders)
 
   const getRarityColor = (rarity: string) => {
     switch (rarity) {
@@ -218,7 +174,7 @@ const PlayerInventory = () => {
         <CardHeader>
           <CardTitle className="flex items-center gap-3 text-2xl">
             <Package className="w-6 h-6 text-primary" />
-            Inventaire d'Elara
+            Inventaire de {selectedCharacter.name}
           </CardTitle>
           <CardDescription>
             Gestion des objets et équipements
@@ -304,10 +260,9 @@ const PlayerInventory = () => {
           </TabsTrigger>
         </TabsList>
 
-        {/* Onglet Équipement */}
         <TabsContent value="equipment">
           <EquipmentSlots
-            character={selectedCharacter}
+            character={{ ...selectedCharacter, equipment }}
             availableItems={inventory.items}
             onEquipItem={handleEquipItem}
             onUnequipItem={handleUnequipItem}
@@ -374,7 +329,7 @@ const PlayerInventory = () => {
                           <div className="flex flex-wrap gap-1 mt-2">
                             {Object.entries(item.stats).map(([stat, value]) => (
                               <Badge key={stat} variant="outline" className="text-xs">
-                                +{value} {stat}
+                                +{String(value)} {stat}
                               </Badge>
                             ))}
                           </div>
@@ -384,6 +339,21 @@ const PlayerInventory = () => {
                             size="sm" 
                             variant={item.equipped ? "destructive" : "default"}
                             className="flex-1"
+                            onClick={() => {
+                              if (item.equipped) {
+                                const equip = equipmentByCharacter[selectedCharacter.id] || {};
+                                const found = Object.entries(equip).find(([, v]) => (v as any)?.id === item.id);
+                                const slotId = (found?.[0] as string) || null;
+                                if (slotId) handleUnequipItem(slotId);
+                              } else {
+                                const slot = autoSlotForItem(item);
+                                if (!slot) {
+                                  toast.error("Aucun emplacement compatible");
+                                  return;
+                                }
+                                handleEquipItem(slot, item);
+                              }
+                            }}
                           >
                             {item.equipped ? "Déséquiper" : "Équiper"}
                           </Button>
