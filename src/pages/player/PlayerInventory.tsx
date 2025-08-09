@@ -4,6 +4,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Progress } from "@/components/ui/progress";
+import { toast } from "sonner";
 import { 
   Package, 
   Sword, 
@@ -13,12 +14,15 @@ import {
   Weight,
   Star,
   Shirt,
-  FlaskConical
+  FlaskConical,
+  User
 } from "lucide-react";
 import { useCharacter } from "@/contexts/CharacterContext";
+import EquipmentSlots from "@/components/EquipmentSlots";
 
 const PlayerInventory = () => {
   const [selectedCategory, setSelectedCategory] = useState("all");
+  const [activeTab, setActiveTab] = useState("inventory");
   const { selectedCharacter } = useCharacter();
 
   if (!selectedCharacter) {
@@ -42,34 +46,100 @@ const PlayerInventory = () => {
         id: 1,
         name: "Arc long elfique +1",
         type: "weapon",
+        subtype: "bow",
         rarity: "uncommon",
-        equipped: true,
+        equipped: false,
         description: "Un arc long finement ouvragé avec des inscriptions elfiques.",
         weight: 2,
-        value: 150
+        value: 150,
+        stats: { damage: 2, dexterity: 1 }
       },
       {
         id: 2,
         name: "Armure de cuir clouté +1",
         type: "armor",
+        subtype: "armor",
         rarity: "uncommon",
-        equipped: true,
+        equipped: false,
         description: "Une armure de cuir renforcée de clous métalliques enchantés.",
         weight: 13,
-        value: 200
+        value: 200,
+        stats: { ac: 3, dexterity: 1 }
       },
       {
         id: 3,
         name: "Épée courte",
         type: "weapon",
+        subtype: "sword",
         rarity: "common",
-        equipped: true,
+        equipped: false,
         description: "Une épée courte de qualité standard.",
         weight: 2,
-        value: 10
+        value: 10,
+        stats: { damage: 1 }
       },
       {
         id: 4,
+        name: "Casque de guerre",
+        type: "armor",
+        subtype: "helmet",
+        rarity: "common",
+        equipped: false,
+        description: "Un casque de métal forgé pour la protection.",
+        weight: 3,
+        value: 25,
+        stats: { ac: 1 }
+      },
+      {
+        id: 5,
+        name: "Gantelets de force",
+        type: "armor",
+        subtype: "gauntlets",
+        rarity: "uncommon",
+        equipped: false,
+        description: "Des gantelets enchantés qui augmentent la force.",
+        weight: 1,
+        value: 150,
+        stats: { strength: 2 }
+      },
+      {
+        id: 6,
+        name: "Amulette de protection",
+        type: "jewelry",
+        subtype: "amulet",
+        rarity: "rare",
+        equipped: false,
+        description: "Une amulette qui protège contre les sorts.",
+        weight: 0.1,
+        value: 300,
+        stats: { ac: 1, wisdom: 1 }
+      },
+      {
+        id: 7,
+        name: "Anneau de dextérité",
+        type: "jewelry",
+        subtype: "ring",
+        rarity: "uncommon",
+        equipped: false,
+        description: "Un anneau qui améliore l'agilité.",
+        weight: 0.1,
+        value: 200,
+        stats: { dexterity: 2 }
+      },
+      {
+        id: 8,
+        name: "Bottes de l'explorateur",
+        type: "armor",
+        subtype: "boots",
+        rarity: "common",
+        equipped: false,
+        description: "Des bottes robustes pour les longs voyages.",
+        weight: 2,
+        value: 50,
+        stats: { constitution: 1 }
+      },
+      {
+        id: 9,
         name: "Potion de soins",
         type: "consumable",
         rarity: "common",
@@ -80,7 +150,7 @@ const PlayerInventory = () => {
         quantity: 3
       },
       {
-        id: 5,
+        id: 10,
         name: "Gemme de vision nocturne",
         type: "treasure",
         rarity: "rare",
@@ -88,18 +158,17 @@ const PlayerInventory = () => {
         description: "Une gemme qui brille d'une lueur argentée.",
         weight: 0.1,
         value: 500
-      },
-      {
-        id: 6,
-        name: "Corde de soie",
-        type: "gear",
-        rarity: "common",
-        equipped: false,
-        description: "Une corde de soie de 15 mètres.",
-        weight: 5,
-        value: 2
       }
     ]
+  };
+
+  const handleEquipItem = (slotId: string, item: any) => {
+    // Ici on pourrait mettre à jour le contexte du personnage
+    toast.success(`${item.name} équipé dans l'emplacement ${slotId}`);
+  };
+
+  const handleUnequipItem = (slotId: string) => {
+    toast.success(`Objet déséquipé de l'emplacement ${slotId}`);
   };
 
   const getRarityColor = (rarity: string) => {
@@ -212,78 +281,113 @@ const PlayerInventory = () => {
         </CardContent>
       </Card>
 
-      {/* Filtres par catégorie */}
-      <Tabs value={selectedCategory} onValueChange={setSelectedCategory}>
-        <TabsList className="grid w-full grid-cols-6 tab-modern">
-          <TabsTrigger value="all">Tout</TabsTrigger>
-          <TabsTrigger value="weapon">Armes</TabsTrigger>
-          <TabsTrigger value="armor">Armures</TabsTrigger>
-          <TabsTrigger value="consumable">Consommables</TabsTrigger>
-          <TabsTrigger value="treasure">Trésors</TabsTrigger>
-          <TabsTrigger value="gear">Équipement</TabsTrigger>
+      {/* Onglets principaux */}
+      <Tabs value={activeTab} onValueChange={setActiveTab}>
+        <TabsList className="grid w-full grid-cols-2 tab-modern">
+          <TabsTrigger value="inventory" className="flex items-center gap-2">
+            <Package className="w-4 h-4" />
+            Inventaire
+          </TabsTrigger>
+          <TabsTrigger value="equipment" className="flex items-center gap-2">
+            <User className="w-4 h-4" />
+            Équipement
+          </TabsTrigger>
         </TabsList>
 
-        <TabsContent value={selectedCategory}>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-            {filteredItems.map((item) => {
-              const TypeIcon = getTypeIcon(item.type);
-              return (
-                <Card key={item.id} className="modern-card group">
-                  <CardHeader className="pb-3">
-                    <div className="flex items-start justify-between">
-                      <div className="flex items-center gap-2">
-                        <TypeIcon className="w-5 h-5 text-primary" />
-                        <CardTitle className="text-lg">{item.name}</CardTitle>
-                      </div>
-                      {item.equipped && (
-                        <Badge variant="outline" className="text-green-400 border-green-400/50 bg-green-500/10">
-                          Équipé
-                        </Badge>
-                      )}
-                    </div>
-                    <div className="flex items-center gap-2">
-                      <Badge 
-                        variant="outline" 
-                        className={getRarityColor(item.rarity)}
-                      >
-                        {item.rarity}
-                      </Badge>
-                      {item.quantity && item.quantity > 1 && (
-                        <Badge variant="outline">
-                          x{item.quantity}
-                        </Badge>
-                      )}
-                    </div>
-                  </CardHeader>
-                  <CardContent>
-                    <p className="text-sm text-muted-foreground mb-3 leading-relaxed">
-                      {item.description}
-                    </p>
-                    <div className="flex justify-between text-sm">
-                      <span className="text-muted-foreground">
-                        Poids: {item.weight} kg
-                      </span>
-                      <span className="text-amber-300 font-medium">
-                        {item.value} po
-                      </span>
-                    </div>
-                    <div className="flex gap-2 mt-3">
-                      <Button 
-                        size="sm" 
-                        variant={item.equipped ? "destructive" : "default"}
-                        className="flex-1"
-                      >
-                        {item.equipped ? "Déséquiper" : "Équiper"}
-                      </Button>
-                      <Button size="sm" variant="outline">
-                        Détails
-                      </Button>
-                    </div>
-                  </CardContent>
-                </Card>
-              );
-            })}
-          </div>
+        {/* Onglet Équipement */}
+        <TabsContent value="equipment">
+          <EquipmentSlots
+            character={selectedCharacter}
+            availableItems={inventory.items}
+            onEquipItem={handleEquipItem}
+            onUnequipItem={handleUnequipItem}
+          />
+        </TabsContent>
+
+        {/* Onglet Inventaire */}
+        <TabsContent value="inventory">
+          <Tabs value={selectedCategory} onValueChange={setSelectedCategory}>
+            <TabsList className="grid w-full grid-cols-6 tab-modern">
+              <TabsTrigger value="all">Tout</TabsTrigger>
+              <TabsTrigger value="weapon">Armes</TabsTrigger>
+              <TabsTrigger value="armor">Armures</TabsTrigger>
+              <TabsTrigger value="consumable">Consommables</TabsTrigger>
+              <TabsTrigger value="treasure">Trésors</TabsTrigger>
+              <TabsTrigger value="gear">Équipement</TabsTrigger>
+            </TabsList>
+
+            <TabsContent value={selectedCategory}>
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                {filteredItems.map((item) => {
+                  const TypeIcon = getTypeIcon(item.type);
+                  return (
+                    <Card key={item.id} className="modern-card group">
+                      <CardHeader className="pb-3">
+                        <div className="flex items-start justify-between">
+                          <div className="flex items-center gap-2">
+                            <TypeIcon className="w-5 h-5 text-primary" />
+                            <CardTitle className="text-lg">{item.name}</CardTitle>
+                          </div>
+                          {item.equipped && (
+                            <Badge variant="outline" className="text-green-400 border-green-400/50 bg-green-500/10">
+                              Équipé
+                            </Badge>
+                          )}
+                        </div>
+                        <div className="flex items-center gap-2">
+                          <Badge 
+                            variant="outline" 
+                            className={getRarityColor(item.rarity)}
+                          >
+                            {item.rarity}
+                          </Badge>
+                          {item.quantity && item.quantity > 1 && (
+                            <Badge variant="outline">
+                              x{item.quantity}
+                            </Badge>
+                          )}
+                        </div>
+                      </CardHeader>
+                      <CardContent>
+                        <p className="text-sm text-muted-foreground mb-3 leading-relaxed">
+                          {item.description}
+                        </p>
+                        <div className="flex justify-between text-sm">
+                          <span className="text-muted-foreground">
+                            Poids: {item.weight} kg
+                          </span>
+                          <span className="text-amber-300 font-medium">
+                            {item.value} po
+                          </span>
+                        </div>
+                        {item.stats && (
+                          <div className="flex flex-wrap gap-1 mt-2">
+                            {Object.entries(item.stats).map(([stat, value]) => (
+                              <Badge key={stat} variant="outline" className="text-xs">
+                                +{value} {stat}
+                              </Badge>
+                            ))}
+                          </div>
+                        )}
+                        <div className="flex gap-2 mt-3">
+                          <Button 
+                            size="sm" 
+                            variant={item.equipped ? "destructive" : "default"}
+                            className="flex-1"
+                          >
+                            {item.equipped ? "Déséquiper" : "Équiper"}
+                          </Button>
+                          <Button size="sm" variant="outline">
+                            Détails
+                          </Button>
+                        </div>
+                      </CardContent>
+                    </Card>
+                  );
+                })}
+              </div>
+            </TabsContent>
+          </Tabs>
         </TabsContent>
       </Tabs>
     </div>
