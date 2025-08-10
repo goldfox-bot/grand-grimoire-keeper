@@ -8,7 +8,7 @@ import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
 import { AppSidebar } from "@/components/AppSidebar";
 import { CharacterProvider } from "@/contexts/CharacterContext";
 import { EquipmentProvider } from "@/contexts/EquipmentContext";
-
+import { GroupProvider } from "@/contexts/GroupContext";
 // Pages
 import DMDashboard from "./pages/dm/DMDashboard";
 import PlayerDashboard from "./pages/player/PlayerDashboard";
@@ -91,13 +91,15 @@ const App = () => {
     <QueryClientProvider client={queryClient}>
       <TooltipProvider>
         <CharacterProvider>
-          <EquipmentProvider>
-            <Toaster />
-            <Sonner />
-            <BrowserRouter>
-              <AppContent />
-            </BrowserRouter>
-          </EquipmentProvider>
+          <GroupProvider>
+            <EquipmentProvider>
+              <Toaster />
+              <Sonner />
+              <BrowserRouter>
+                <AppContent />
+              </BrowserRouter>
+            </EquipmentProvider>
+          </GroupProvider>
         </CharacterProvider>
       </TooltipProvider>
     </QueryClientProvider>

@@ -45,7 +45,8 @@ const NPCForm = ({ isOpen, onClose, onSave, editingNPC }: NPCFormProps) => {
     description: editingNPC?.description || '',
     relationship: editingNPC?.relationship || 'neutral' as const,
     notes: editingNPC?.notes || '',
-    items: editingNPC?.items || []
+    items: editingNPC?.items || [],
+    portrait: editingNPC?.portrait || ''
   });
 
   const [newItem, setNewItem] = useState({ name: '', price: 0, type: '' });
@@ -68,7 +69,8 @@ const NPCForm = ({ isOpen, onClose, onSave, editingNPC }: NPCFormProps) => {
       description: '',
       relationship: 'neutral',
       notes: '',
-      items: []
+      items: [],
+      portrait: ''
     });
   };
 
@@ -181,6 +183,30 @@ const NPCForm = ({ isOpen, onClose, onSave, editingNPC }: NPCFormProps) => {
                 <option value="neutral">Neutre</option>
                 <option value="romantic">Romantique</option>
               </select>
+            </div>
+            <div className="sm:col-span-2">
+              <Label htmlFor="portrait" className="text-gold-200">Portrait (optionnel)</Label>
+              <Input
+                id="portrait"
+                type="file"
+                accept="image/*"
+                className="bg-dungeon-800/50 border-gold-500/30"
+                onChange={(e) => {
+                  const file = (e.target as HTMLInputElement).files?.[0];
+                  if (!file) return;
+                  const reader = new FileReader();
+                  reader.onload = () => setFormData(prev => ({ ...prev, portrait: reader.result as string }));
+                  reader.readAsDataURL(file);
+                }}
+              />
+              {formData.portrait && (
+                <img
+                  src={formData.portrait}
+                  alt={`Portrait ${formData.name || 'PNJ'}`}
+                  loading="lazy"
+                  className="mt-2 w-full aspect-[2.5/3.5] object-cover rounded-lg border border-gold-500/30"
+                />
+              )}
             </div>
           </div>
 

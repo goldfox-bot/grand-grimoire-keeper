@@ -4,10 +4,12 @@ import { Badge } from "@/components/ui/badge";
 import { User, Package, BookOpen, Map, Heart, Zap, Shield, Sword } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useCharacter } from "@/contexts/CharacterContext";
+import { useGroup } from "@/contexts/GroupContext";
 
 const PlayerDashboard = () => {
   const navigate = useNavigate();
   const { selectedCharacter } = useCharacter();
+  const { name: groupName, members } = useGroup();
 
   if (!selectedCharacter) {
     return (
@@ -29,13 +31,20 @@ const PlayerDashboard = () => {
         <h1 className="text-4xl font-fantasy font-bold adventure-glow mb-4">
           Interface Joueur
         </h1>
-        <p className="text-lg text-muted-foreground mb-4">
-          Les Maraudeurs de Joyaux Tendres
+        <p className="text-lg text-muted-foreground mb-2">
+          {groupName}
         </p>
         <Badge variant="outline" className="text-green-200 border-green-400/50 bg-green-500/10">
           <User className="w-4 h-4 mr-2" />
           Personnage Actif
         </Badge>
+        <div className="mt-3 flex flex-wrap justify-center gap-2">
+          {members.map((m) => (
+            <Badge key={m.id} variant="outline" className="text-xs">
+              {m.name}
+            </Badge>
+          ))}
+        </div>
       </div>
 
       {/* Résumé du Personnage */}

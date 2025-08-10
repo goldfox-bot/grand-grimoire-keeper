@@ -18,6 +18,7 @@ import {
 } from "lucide-react";
 import { useCharacter } from "@/contexts/CharacterContext";
 import { useEquipment } from "@/contexts/EquipmentContext";
+import { useGroup } from "@/contexts/GroupContext";
 
 const CharacterSheet = () => {
   const { selectedCharacter } = useCharacter();
@@ -36,6 +37,7 @@ const CharacterSheet = () => {
   }
 
   const { getEquipment } = useEquipment();
+  const { name: groupName } = useGroup();
 
   // Base du personnage
   const base = selectedCharacter;
@@ -109,6 +111,7 @@ const CharacterSheet = () => {
               <CardDescription className="text-lg">
                 {character.race} {character.class} • Niveau {character.level} • {character.archetype}
               </CardDescription>
+              <div className="text-sm text-muted-foreground">Groupe: {groupName}</div>
             </div>
             <div className="text-right">
               <Badge variant="outline" className="text-orange-200 border-orange-400/50 bg-orange-500/10 mb-2">

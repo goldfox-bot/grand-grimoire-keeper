@@ -61,7 +61,8 @@ const InteractiveMap = () => {
     type: 'poi' as MapLocation['type'],
     description: '',
     x: 0,
-    y: 0
+    y: 0,
+    image: ''
   });
 
   const getLocationIcon = (type: MapLocation['type']) => {
@@ -104,7 +105,7 @@ const InteractiveMap = () => {
       };
       
       setLocations(prev => [...prev, location]);
-      setNewLocation({ name: '', type: 'poi', description: '', x: 0, y: 0 });
+      setNewLocation({ name: '', type: 'poi', description: '', x: 0, y: 0, image: '' });
       setIsAddingLocation(false);
     }
   };
