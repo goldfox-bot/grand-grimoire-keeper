@@ -17,6 +17,7 @@ import {
   Target
 } from "lucide-react";
 import { useCharacter } from "@/contexts/CharacterContext";
+import { useEquipment } from "@/contexts/EquipmentContext";
 
 const CharacterSheet = () => {
   const { selectedCharacter } = useCharacter();
@@ -34,24 +35,46 @@ const CharacterSheet = () => {
     );
   }
 
+  const { getEquipment } = useEquipment();
+
+  // Base du personnage
+  const base = selectedCharacter;
+  const equipment = getEquipment(base.id) || {};
+
+  // Calcul des bonus issus de l'équipement
+  const eqBonuses = Object.values(equipment).reduce((acc: any, item: any) => {
+    if (item?.stats) {
+      Object.entries(item.stats).forEach(([k, v]) => {
+        acc[k] = (acc[k] || 0) + (v as number);
+      });
+    }
+    return acc;
+  }, {} as Record<string, number>);
+
+  const derivedStats = {
+    strength: base.stats.strength + (eqBonuses.strength || 0),
+    dexterity: base.stats.dexterity + (eqBonuses.dexterity || 0),
+    constitution: base.stats.constitution + (eqBonuses.constitution || 0),
+    intelligence: base.stats.intelligence + (eqBonuses.intelligence || 0),
+    wisdom: base.stats.wisdom + (eqBonuses.wisdom || 0),
+    charisma: base.stats.charisma + (eqBonuses.charisma || 0),
+  };
+
+  const ac = base.stats.ac + (eqBonuses.ac || 0);
+  const hp = { current: base.stats.hp.current + (eqBonuses.hp || 0), max: base.stats.hp.max + (eqBonuses.hp || 0) };
+  const proficiencyBonus = base.stats.proficiencyBonus;
+
   const character = {
-    name: selectedCharacter.name,
-    race: selectedCharacter.race,
-    class: selectedCharacter.class,
-    level: selectedCharacter.level,
+    name: base.name,
+    race: base.race,
+    class: base.class,
+    level: base.level,
     archetype: "Aventurier",
-    hp: selectedCharacter.stats.hp,
-    ac: selectedCharacter.stats.ac,
-    proficiencyBonus: selectedCharacter.stats.proficiencyBonus,
+    hp,
+    ac,
+    proficiencyBonus,
     speed: 30,
-    stats: {
-      strength: 12,
-      dexterity: 18,
-      constitution: 14,
-      intelligence: 13,
-      wisdom: 16,
-      charisma: 10
-    },
+    stats: derivedStats,
     skills: [
       { name: "Perception", bonus: 8, proficient: true },
       { name: "Survie", bonus: 7, proficient: true },
@@ -61,12 +84,7 @@ const CharacterSheet = () => {
       { name: "Nature", bonus: 5, proficient: true }
     ],
     equipment: [
-      "Arc long elfique +1",
-      "Armure de cuir clouté +1",
-      "Épée courte",
-      "Carquois (30 flèches)",
-      "Kit d'exploration",
-      "Corde (15m)"
+      // Liste illustrative; l'affichage détaillé de l'équipement est géré ailleurs
     ],
     spells: [
       { name: "Marque du chasseur", level: 1, slots: 2 },

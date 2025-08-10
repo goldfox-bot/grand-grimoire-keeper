@@ -18,6 +18,7 @@ import {
   User
 } from "lucide-react";
 import { useCharacter } from "@/contexts/CharacterContext";
+import { useEquipment } from "@/contexts/EquipmentContext";
 import EquipmentSlots from "@/components/EquipmentSlots";
 
 const PlayerInventory = () => {
@@ -43,7 +44,8 @@ const PlayerInventory = () => {
     head?: any; neck?: any; chest?: any; arms?: any; mainHand?: any; offHand?: any; ring1?: any; ring2?: any; legs?: any;
   };
   const [itemsByCharacter, setItemsByCharacter] = useState<Record<string, any[]>>({});
-  const [equipmentByCharacter, setEquipmentByCharacter] = useState<Record<string, Equipment>>({});
+  // Équipement géré globalement via contexte
+  const { getEquipment, equipItem: ctxEquipItem, unequipItem: ctxUnequipItem } = useEquipment();
 
   // Inventaire par défaut utilisé à la première ouverture d'un perso
   const defaultItems: any[] = [
@@ -65,13 +67,10 @@ const PlayerInventory = () => {
     if (!itemsByCharacter[selectedCharacter.id]) {
       setItemsByCharacter((prev) => ({ ...prev, [selectedCharacter.id]: defaultItems }));
     }
-    if (!equipmentByCharacter[selectedCharacter.id]) {
-      setEquipmentByCharacter((prev) => ({ ...prev, [selectedCharacter.id]: {} }));
-    }
   }, [selectedCharacter.id]);
 
-  const items = itemsByCharacter[selectedCharacter.id] || defaultItems;
-  const equipment = equipmentByCharacter[selectedCharacter.id] || {};
+const items = itemsByCharacter[selectedCharacter.id] || defaultItems;
+const equipment = getEquipment(selectedCharacter.id) || {};
 
   const autoSlotForItem = (item: any): string | null => {
     const key = item.subtype || item.type;
@@ -89,44 +88,43 @@ const PlayerInventory = () => {
     }
   };
 
-  const handleEquipItem = (slotId: string, item: any) => {
-    setEquipmentByCharacter((prev) => {
-      const prevEquip = prev[selectedCharacter.id] || {};
-      const previousItemInSlot = (prevEquip as any)[slotId];
-      const nextEquip = { ...prevEquip, [slotId]: item } as Equipment;
+const handleEquipItem = (slotId: string, item: any) => {
+  const prevEquip = getEquipment(selectedCharacter.id) || {} as Equipment;
+  const previousItemInSlot = (prevEquip as any)[slotId];
 
-      // Met à jour les flags d'équipement des items
-      setItemsByCharacter((itemsState) => {
-        const current = itemsState[selectedCharacter.id] || [];
-        const next = current.map((it) => {
-          if (it.id === item.id) return { ...it, equipped: true };
-          if (previousItemInSlot && it.id === previousItemInSlot.id) return { ...it, equipped: false };
-          return it;
-        });
-        return { ...itemsState, [selectedCharacter.id]: next };
-      });
+  // Met à jour le contexte d'équipement global
+  ctxEquipItem(selectedCharacter.id, slotId as keyof Equipment, item);
 
-      toast.success(`${item.name} équipé dans l'emplacement ${slotId}`);
-      return { ...prev, [selectedCharacter.id]: nextEquip };
+  // Met à jour les flags d'équipement des items (local à l'inventaire)
+  setItemsByCharacter((itemsState) => {
+    const current = itemsState[selectedCharacter.id] || [];
+    const next = current.map((it) => {
+      if (it.id === item.id) return { ...it, equipped: true };
+      if (previousItemInSlot && it.id === previousItemInSlot.id) return { ...it, equipped: false };
+      return it;
     });
-  };
+    return { ...itemsState, [selectedCharacter.id]: next };
+  });
 
-  const handleUnequipItem = (slotId: string) => {
-    setEquipmentByCharacter((prev) => {
-      const prevEquip = prev[selectedCharacter.id] || {};
-      const item = (prevEquip as any)[slotId];
-      const nextEquip = { ...prevEquip, [slotId]: undefined } as Equipment;
+  toast.success(`${item.name} équipé dans l'emplacement ${slotId}`);
+};
 
-      setItemsByCharacter((itemsState) => {
-        const current = itemsState[selectedCharacter.id] || [];
-        const next = current.map((it) => (item && it.id === item.id ? { ...it, equipped: false } : it));
-        return { ...itemsState, [selectedCharacter.id]: next };
-      });
+const handleUnequipItem = (slotId: string) => {
+  const prevEquip = getEquipment(selectedCharacter.id) || {} as Equipment;
+  const item = (prevEquip as any)[slotId];
 
-      toast.success(`Objet déséquipé de l'emplacement ${slotId}`);
-      return { ...prev, [selectedCharacter.id]: nextEquip };
-    });
-  };
+  // Met à jour le contexte global
+  ctxUnequipItem(selectedCharacter.id, slotId as keyof Equipment);
+
+  // Met à jour les flags d'équipement des items (local à l'inventaire)
+  setItemsByCharacter((itemsState) => {
+    const current = itemsState[selectedCharacter.id] || [];
+    const next = current.map((it) => (item && it.id === item.id ? { ...it, equipped: false } : it));
+    return { ...itemsState, [selectedCharacter.id]: next };
+  });
+
+  toast.success(`Objet déséquipé de l'emplacement ${slotId}`);
+};
 
   // Objet d'inventaire pour l'UI
   const inventory = {
@@ -341,10 +339,10 @@ const PlayerInventory = () => {
                             className="flex-1"
                             onClick={() => {
                               if (item.equipped) {
-                                const equip = equipmentByCharacter[selectedCharacter.id] || {};
-                                const found = Object.entries(equip).find(([, v]) => (v as any)?.id === item.id);
-                                const slotId = (found?.[0] as string) || null;
-                                if (slotId) handleUnequipItem(slotId);
+const equip = getEquipment(selectedCharacter.id) || {} as Equipment;
+const found = Object.entries(equip).find(([, v]) => (v as any)?.id === item.id);
+const slotId = (found?.[0] as string) || null;
+if (slotId) handleUnequipItem(slotId);
                               } else {
                                 const slot = autoSlotForItem(item);
                                 if (!slot) {

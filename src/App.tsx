@@ -7,6 +7,7 @@ import { BrowserRouter, Routes, Route, Navigate, useLocation } from "react-route
 import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
 import { AppSidebar } from "@/components/AppSidebar";
 import { CharacterProvider } from "@/contexts/CharacterContext";
+import { EquipmentProvider } from "@/contexts/EquipmentContext";
 
 // Pages
 import DMDashboard from "./pages/dm/DMDashboard";
@@ -90,11 +91,13 @@ const App = () => {
     <QueryClientProvider client={queryClient}>
       <TooltipProvider>
         <CharacterProvider>
-          <Toaster />
-          <Sonner />
-          <BrowserRouter>
-            <AppContent />
-          </BrowserRouter>
+          <EquipmentProvider>
+            <Toaster />
+            <Sonner />
+            <BrowserRouter>
+              <AppContent />
+            </BrowserRouter>
+          </EquipmentProvider>
         </CharacterProvider>
       </TooltipProvider>
     </QueryClientProvider>
