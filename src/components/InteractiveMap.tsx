@@ -3,6 +3,7 @@ import { useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Badge } from "@/components/ui/badge";
@@ -247,6 +248,30 @@ const InteractiveMap = () => {
                   onChange={(e) => setNewLocation(prev => ({ ...prev, description: e.target.value }))}
                   className="bg-dungeon-800/50 border-gold-500/30"
                 />
+                <div>
+                  <Label htmlFor="newLocationImage" className="text-gold-200">Visuel (optionnel)</Label>
+                  <Input
+                    id="newLocationImage"
+                    type="file"
+                    accept="image/*"
+                    className="bg-dungeon-800/50 border-gold-500/30"
+                    onChange={(e) => {
+                      const file = (e.target as HTMLInputElement).files?.[0];
+                      if (!file) return;
+                      const reader = new FileReader();
+                      reader.onload = () => setNewLocation(prev => ({ ...prev, image: reader.result as string }));
+                      reader.readAsDataURL(file);
+                    }}
+                  />
+                  {newLocation.image && (
+                    <img
+                      src={newLocation.image}
+                      alt={`Aperçu visuel ${newLocation.name || 'lieu'}`}
+                      loading="lazy"
+                      className="mt-2 w-full aspect-[2.5/3.5] object-cover rounded-lg border border-gold-500/30"
+                    />
+                  )}
+                </div>
                 <Button onClick={addLocation} className="w-full bg-gold-600 hover:bg-gold-700 text-dungeon-900">
                   Ajouter le Lieu
                 </Button>
@@ -275,6 +300,40 @@ const InteractiveMap = () => {
                 <p className="text-sm leading-relaxed">
                   {selectedLocation.description}
                 </p>
+
+                {selectedLocation.image ? (
+                  <img
+                    src={selectedLocation.image}
+                    alt={`Visuel ${selectedLocation.name}`}
+                    loading="lazy"
+                    className="w-full aspect-[2.5/3.5] object-cover rounded-lg border border-gold-500/30"
+                  />
+                ) : (
+                  <div className="w-full aspect-[2.5/3.5] rounded-lg border border-dashed border-border/40 text-muted-foreground flex items-center justify-center text-sm">
+                    Aucun visuel
+                  </div>
+                )}
+
+                <div>
+                  <Label htmlFor="editLocationImage" className="text-gold-200">Mettre à jour le visuel</Label>
+                  <Input
+                    id="editLocationImage"
+                    type="file"
+                    accept="image/*"
+                    className="bg-dungeon-800/50 border-gold-500/30"
+                    onChange={(e) => {
+                      const file = (e.target as HTMLInputElement).files?.[0];
+                      if (!file) return;
+                      const reader = new FileReader();
+                      reader.onload = () => {
+                        const img = reader.result as string;
+                        setLocations(prev => prev.map(l => l.id === selectedLocation.id ? { ...l, image: img } : l));
+                        setSelectedLocation(prev => prev ? { ...prev, image: img } : prev);
+                      };
+                      reader.readAsDataURL(file);
+                    }}
+                  />
+                </div>
                 
                 {selectedLocation.npcs.length > 0 && (
                   <div>
