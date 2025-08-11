@@ -10,7 +10,8 @@ import {
   Map, 
   Home,
   BookOpen,
-  Package
+  Package,
+  KeyRound
 } from "lucide-react";
 import grimoireLogo from "@/assets/grimoire-logo.png";
 
@@ -39,6 +40,7 @@ const dmItems = [
   { title: "Gestion des Quêtes", url: "/dm/quests", icon: ScrollText },
   { title: "PNJ", url: "/dm/npcs", icon: Users },
   { title: "Objets", url: "/dm/items", icon: Sword },
+  { title: "Objets Secrets", url: "/dm/secret-items", icon: KeyRound },
   { title: "Groupe", url: "/dm/group", icon: Shield },
   { title: "Carte Interactive", url: "/dm/map", icon: Map },
 ];

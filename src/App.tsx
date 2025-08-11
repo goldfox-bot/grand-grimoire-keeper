@@ -9,6 +9,7 @@ import { AppSidebar } from "@/components/AppSidebar";
 import { CharacterProvider } from "@/contexts/CharacterContext";
 import { EquipmentProvider } from "@/contexts/EquipmentContext";
 import { GroupProvider } from "@/contexts/GroupContext";
+import { SecretItemsProvider } from "./contexts/SecretItemsContext";
 // Pages
 import DMDashboard from "./pages/dm/DMDashboard";
 import PlayerDashboard from "./pages/player/PlayerDashboard";
@@ -20,6 +21,7 @@ import ItemCatalog from "./components/ItemCatalog";
 import GroupPanel from "./components/GroupPanel";
 import InteractiveMap from "./components/InteractiveMap";
 import QuestManager from "./components/QuestManager";
+import SecretItems from "./pages/dm/SecretItems";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -61,8 +63,8 @@ const AppContent = () => {
               {/* Routes MJ */}
               <Route path="/dm" element={<DMDashboard />} />
               <Route path="/dm/quests" element={<QuestManager />} />
-              <Route path="/dm/npcs" element={<NPCDirectory />} />
               <Route path="/dm/items" element={<ItemCatalog />} />
+              <Route path="/dm/secret-items" element={<SecretItems />} />
               <Route path="/dm/group" element={<GroupPanel />} />
               <Route path="/dm/map" element={<InteractiveMap />} />
               
@@ -93,11 +95,13 @@ const App = () => {
         <CharacterProvider>
           <GroupProvider>
             <EquipmentProvider>
-              <Toaster />
-              <Sonner />
-              <BrowserRouter>
-                <AppContent />
-              </BrowserRouter>
+              <SecretItemsProvider>
+                <Toaster />
+                <Sonner />
+                <BrowserRouter>
+                  <AppContent />
+                </BrowserRouter>
+              </SecretItemsProvider>
             </EquipmentProvider>
           </GroupProvider>
         </CharacterProvider>

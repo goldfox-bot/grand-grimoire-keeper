@@ -15,15 +15,19 @@ import {
   Star,
   Shirt,
   FlaskConical,
-  User
+  User,
+  KeyRound
 } from "lucide-react";
 import { useCharacter } from "@/contexts/CharacterContext";
 import { useEquipment } from "@/contexts/EquipmentContext";
+import { useSecretItems } from "@/contexts/SecretItemsContext";
 import EquipmentSlots from "@/components/EquipmentSlots";
-
+import { Input } from "@/components/ui/input";
 const PlayerInventory = () => {
   const [selectedCategory, setSelectedCategory] = useState("all");
   const [activeTab, setActiveTab] = useState("inventory");
+  const { redeemCode } = useSecretItems();
+  const [redeemCodeValue, setRedeemCodeValue] = useState("");
   const { selectedCharacter } = useCharacter();
 
   if (!selectedCharacter) {
@@ -124,6 +128,18 @@ const handleUnequipItem = (slotId: string) => {
   });
 
   toast.success(`Objet déséquipé de l'emplacement ${slotId}`);
+};
+
+const handleRedeem = () => {
+  if (!redeemCodeValue.trim()) { toast.error("Entrez un code"); return; }
+  const res = redeemCode(redeemCodeValue, selectedCharacter.id);
+  if (!res.success || !res.item) { toast.error(res.message || "Code invalide"); return; }
+  setItemsByCharacter((prev) => {
+    const current = prev[selectedCharacter.id] || [];
+    return { ...prev, [selectedCharacter.id]: [res.item, ...current] };
+  });
+  toast.success(`Objet ajouté: ${res.item.name}`);
+  setRedeemCodeValue("");
 };
 
   // Objet d'inventaire pour l'UI
@@ -247,7 +263,7 @@ const handleUnequipItem = (slotId: string) => {
 
       {/* Onglets principaux */}
       <Tabs value={activeTab} onValueChange={setActiveTab}>
-        <TabsList className="grid w-full grid-cols-2 tab-modern">
+        <TabsList className="grid w-full grid-cols-3 tab-modern">
           <TabsTrigger value="inventory" className="flex items-center gap-2">
             <Package className="w-4 h-4" />
             Inventaire
@@ -255,6 +271,10 @@ const handleUnequipItem = (slotId: string) => {
           <TabsTrigger value="equipment" className="flex items-center gap-2">
             <User className="w-4 h-4" />
             Équipement
+          </TabsTrigger>
+          <TabsTrigger value="codes" className="flex items-center gap-2">
+            <KeyRound className="w-4 h-4" />
+            Code Items
           </TabsTrigger>
         </TabsList>
 
@@ -366,6 +386,30 @@ if (slotId) handleUnequipItem(slotId);
               </div>
             </TabsContent>
           </Tabs>
+        </TabsContent>
+
+        <TabsContent value="codes">
+          <Card className="modern-card">
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <KeyRound className="w-5 h-5 text-primary" /> Débloquer un item
+              </CardTitle>
+              <CardDescription>Entrez votre code (ex: LMJT000) pour ajouter l'objet à votre inventaire.</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className="flex gap-2">
+                <Input
+                  placeholder="LMJT000"
+                  value={redeemCodeValue}
+                  onChange={(e) => setRedeemCodeValue(e.target.value)}
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter') handleRedeem();
+                  }}
+                />
+                <Button onClick={handleRedeem}>Valider</Button>
+              </div>
+            </CardContent>
+          </Card>
         </TabsContent>
       </Tabs>
     </div>
