@@ -2,7 +2,7 @@ import { useState } from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Users, Sword, Shield, Sparkles, Map, Plus } from "lucide-react";
+import { Users, Sword, Shield, Sparkles, Plus } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 
 const DMDashboard = () => {
@@ -103,26 +103,26 @@ const DMDashboard = () => {
           </CardContent>
         </Card>
 
-        {/* Carte Interactive */}
+        {/* Outils de Session */}
         <Card className="modern-card group">
           <CardHeader>
             <CardTitle className="flex items-center gap-3 text-lg text-slate-100 group-hover:text-orange-200 transition-colors">
-              <Map className="w-6 h-6 text-emerald-400" />
-              Carte Interactive
+              <Plus className="w-6 h-6 text-amber-400" />
+              Outils de Session
             </CardTitle>
             <CardDescription>
-              Explorez et gérez le monde de campagne
+              Générateurs et aides de jeu en temps réel
             </CardDescription>
           </CardHeader>
           <CardContent>
             <p className="text-sm mb-6 text-slate-300 leading-relaxed">
-              Placez des markers, gérez les lieux importants et suivez les déplacements du groupe.
+              Initiative, météo, générateurs de noms et événements aléatoires.
             </p>
             <Button 
-              onClick={() => navigate("/dm/map")} 
-              className="w-full bg-gradient-to-r from-emerald-500 to-emerald-600 hover:from-emerald-600 hover:to-emerald-700"
+              variant="outline"
+              className="w-full border-amber-400/50 text-amber-200 hover:bg-amber-500/10"
             >
-              Ouvrir la Carte
+              Bientôt Disponible
             </Button>
           </CardContent>
         </Card>

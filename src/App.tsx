@@ -67,6 +67,7 @@ const AppContent = () => {
               <Route path="/dm/items" element={<ItemCatalog />} />
               <Route path="/dm/secret-items" element={<SecretItems />} />
               <Route path="/dm/group" element={<GroupPanel />} />
+              <Route path="/dm/character" element={<CharacterSheet />} />
               <Route path="/dm/characters" element={<CharacterManager />} />
               
               {/* Routes Joueur */}
