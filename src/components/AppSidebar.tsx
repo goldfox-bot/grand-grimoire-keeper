@@ -42,7 +42,7 @@ const dmItems = [
   { title: "Objets", url: "/dm/items", icon: Sword },
   { title: "Objets Secrets", url: "/dm/secret-items", icon: KeyRound },
   { title: "Groupe", url: "/dm/group", icon: Shield },
-  { title: "Carte Interactive", url: "/dm/map", icon: Map },
+  { title: "Personnages", url: "/dm/characters", icon: Users },
 ];
 
 const playerItems = [
@@ -50,7 +50,6 @@ const playerItems = [
   { title: "Fiche de Personnage", url: "/player/character", icon: User },
   { title: "Inventaire", url: "/player/inventory", icon: Package },
   { title: "Journal de Quête", url: "/player/journal", icon: BookOpen },
-  { title: "Carte", url: "/player/map", icon: Map },
 ];
 
 export function AppSidebar({ currentView, onViewChange }: AppSidebarProps) {

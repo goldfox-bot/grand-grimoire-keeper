@@ -235,55 +235,6 @@ const characterData: Record<string, Character> = {
     },
     sessionsPlayed: 9
   },
-  elara: {
-    id: "elara",
-    name: "Elara Sombrelune",
-    class: "Rôdeuse",
-    level: 6,
-    race: "Elfe",
-    avatar: "/lovable-uploads/28fdad4b-3c72-4129-92f0-49785e88c8d3.png",
-    stats: {
-      hp: { current: 78, max: 85 },
-      ac: 15,
-      proficiencyBonus: 4,
-      weaponDamage: "1d8+3",
-      strength: 12,
-      dexterity: 17,
-      constitution: 14,
-      intelligence: 13,
-      wisdom: 15,
-      charisma: 11
-    },
-    inventory: {
-      gold: 247,
-      weight: { current: 45, max: 65 },
-      equippedItems: 8,
-      maxEquipped: 12,
-      items: []
-    },
-    quests: {
-      active: [
-        {
-          id: "5",
-          title: "Les Cristaux Perdus",
-          description: "Récupérer les cristaux magiques volés par les bandits",
-          status: "active",
-          progress: 80
-        }
-      ],
-      completed: []
-    },
-    exploration: {
-      locationsDiscovered: 12,
-      dungeonsExplored: 3,
-      citiesVisited: 5
-    },
-    xp: {
-      current: 160,
-      total: 14000
-    },
-    sessionsPlayed: 8
-  }
 };
 
 interface CharacterContextType {
@@ -292,18 +243,45 @@ interface CharacterContextType {
   setSelectedCharacterId: (id: string | null) => void;
   getAllCharacters: () => Character[];
   getCharacterById: (id: string) => Character | null;
+  addCharacter: (character: Omit<Character, 'id'>) => void;
+  removeCharacter: (id: string) => void;
+  updateCharacter: (id: string, updates: Partial<Character>) => void;
 }
 
 const CharacterContext = createContext<CharacterContextType | undefined>(undefined);
 
 export const CharacterProvider = ({ children }: { children: ReactNode }) => {
+  const [characters, setCharacters] = useState<Record<string, Character>>(characterData);
   const [selectedCharacterId, setSelectedCharacterId] = useState<string | null>(null);
 
-  const selectedCharacter = selectedCharacterId ? characterData[selectedCharacterId] || null : null;
+  const selectedCharacter = selectedCharacterId ? characters[selectedCharacterId] || null : null;
 
-  const getAllCharacters = () => Object.values(characterData);
+  const getAllCharacters = () => Object.values(characters);
   
-  const getCharacterById = (id: string) => characterData[id] || null;
+  const getCharacterById = (id: string) => characters[id] || null;
+
+  const addCharacter = (character: Omit<Character, 'id'>) => {
+    const id = Date.now().toString();
+    const newCharacter = { ...character, id };
+    setCharacters(prev => ({ ...prev, [id]: newCharacter }));
+  };
+
+  const removeCharacter = (id: string) => {
+    setCharacters(prev => {
+      const { [id]: removed, ...rest } = prev;
+      return rest;
+    });
+    if (selectedCharacterId === id) {
+      setSelectedCharacterId(null);
+    }
+  };
+
+  const updateCharacter = (id: string, updates: Partial<Character>) => {
+    setCharacters(prev => ({
+      ...prev,
+      [id]: { ...prev[id], ...updates }
+    }));
+  };
 
   return (
     <CharacterContext.Provider value={{
@@ -311,7 +289,10 @@ export const CharacterProvider = ({ children }: { children: ReactNode }) => {
       selectedCharacter,
       setSelectedCharacterId,
       getAllCharacters,
-      getCharacterById
+      getCharacterById,
+      addCharacter,
+      removeCharacter,
+      updateCharacter
     }}>
       {children}
     </CharacterContext.Provider>

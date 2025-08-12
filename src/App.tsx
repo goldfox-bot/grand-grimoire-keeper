@@ -19,8 +19,9 @@ import QuestJournal from "./pages/player/QuestJournal";
 import NPCDirectory from "./components/NPCDirectory";
 import ItemCatalog from "./components/ItemCatalog";
 import GroupPanel from "./components/GroupPanel";
-import InteractiveMap from "./components/InteractiveMap";
+
 import QuestManager from "./components/QuestManager";
+import CharacterManager from "./components/CharacterManager";
 import SecretItems from "./pages/dm/SecretItems";
 import NotFound from "./pages/NotFound";
 
@@ -66,14 +67,13 @@ const AppContent = () => {
               <Route path="/dm/items" element={<ItemCatalog />} />
               <Route path="/dm/secret-items" element={<SecretItems />} />
               <Route path="/dm/group" element={<GroupPanel />} />
-              <Route path="/dm/map" element={<InteractiveMap />} />
+              <Route path="/dm/characters" element={<CharacterManager />} />
               
               {/* Routes Joueur */}
               <Route path="/player" element={<PlayerDashboard />} />
               <Route path="/player/character" element={<CharacterSheet />} />
               <Route path="/player/inventory" element={<PlayerInventory />} />
               <Route path="/player/journal" element={<QuestJournal />} />
-              <Route path="/player/map" element={<InteractiveMap />} />
               
               {/* Redirections */}
               <Route path="/" element={<Navigate to="/dm" replace />} />

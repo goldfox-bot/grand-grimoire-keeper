@@ -13,6 +13,7 @@ export const GroupProvider = ({ children }: { children: ReactNode }) => {
 
   // Nom de groupe par défaut – peut être branché plus tard à un écran d'édition
   const name = "Les Maraudeurs de Joyaux Tendres";
+  // Les membres du groupe sont maintenant les vrais personnages joueurs
   const members = useMemo(() => getAllCharacters(), [getAllCharacters]);
 
   return (
