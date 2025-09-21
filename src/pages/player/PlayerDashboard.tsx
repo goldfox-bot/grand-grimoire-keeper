@@ -1,7 +1,7 @@
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { User, Package, BookOpen, Heart, Zap, Shield, Sword } from "lucide-react";
+import { User, Package, BookOpen, Heart, Zap, Shield, Sword, Map } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useCharacter } from "@/contexts/CharacterContext";
 import { useGroup } from "@/contexts/GroupContext";
